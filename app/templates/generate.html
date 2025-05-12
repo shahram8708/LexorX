@@ -216,8 +216,7 @@
           alt="Generated Image">
         <div class="card-body d-flex flex-column">
           <div class="prompt-badge mb-2">
-            <i class="bi bi-chat-left-text me-1"></i>
-            {{ img.prompt[:50] }}{% if img.prompt|length > 50 %}...{% endif %}
+            <i class="bi bi-chat-left-text me-1"></i> {{ img.prompt }}
           </div>
           <small class="text-muted mb-2"><i class="bi bi-clock-history me-1"></i> {{ img.date_created.strftime('%Y-%m-%d
             %H:%M') }}</small>

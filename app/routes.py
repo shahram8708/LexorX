@@ -27,8 +27,8 @@ def generate():
     form = GenerateForm()
     if form.validate_on_submit():
         prompt = form.prompt.data
+
         
-        # Call the image generation API
         response = client.models.generate_content(
             model="gemini-2.0-flash-preview-image-generation",
             contents=prompt,
@@ -39,41 +39,22 @@ def generate():
 
         filename = None
         for part in response.candidates[0].content.parts:
-            if part.inline_data is not None and part.inline_data.data.strip():  # Check if data exists
-                try:
-                    # Decode the base64-encoded image data
-                    image_data = base64.b64decode(part.inline_data.data)
-                    
-                    # Try to open the image using PIL
-                    image = Image.open(BytesIO(image_data))
+            if part.inline_data is not None:
+                image_data = base64.b64decode(part.inline_data.data)
+                image = Image.open(BytesIO(image_data))
+                filename = secrets.token_hex(8) + '.png'
+                filepath = os.path.join('app/static/images', filename)
+                image.save(filepath)
 
-                    # Generate a filename for the image
-                    filename = secrets.token_hex(8) + '.png'  # Change to '.jpg' if it's a JPEG
-                    filepath = os.path.join('app/static/images', filename)
-                    
-                    # Save the image to the specified filepath
-                    image.save(filepath)
-
-                    # Save the image metadata to the database
-                    generated = GeneratedImage(prompt=prompt, image_file=filename, author=current_user)
-                    db.session.add(generated)
-                    db.session.commit()
-
-                    # Break out of the loop since we only need the first image
-                    break
-                except Exception as e:
-                    # If the image cannot be processed, show an error message
-                    flash(f"Error processing image: {e}", 'danger')
-                    print(f"Error: {e}")
-                    break
-            else:
-                # If there's no valid image data, notify the user
-                flash("No valid image data received", 'danger')
+                
+                generated = GeneratedImage(prompt=prompt, image_file=filename, author=current_user)
+                db.session.add(generated)
+                db.session.commit()
+                break
 
         flash('Image generated!', 'success')
         return redirect(url_for('main.generate'))
 
-    # Query the database for previously generated images
     images = GeneratedImage.query.filter_by(author=current_user).order_by(GeneratedImage.date_created.desc()).all()
     return render_template('generate.html', form=form, images=images)
 
