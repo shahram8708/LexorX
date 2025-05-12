@@ -13,7 +13,7 @@ from io import BytesIO
 
 bp = Blueprint('main', __name__)
 
-API_KEY = "AIzaSyCLTXDhAgFA9QrzbUfREzTZj5KgeVOAhp4"
+API_KEY = "api_key"
 client = genai.Client(api_key=API_KEY)
 
 @bp.route("/")
