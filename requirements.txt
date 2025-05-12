@@ -4,5 +4,3 @@ Flask-WTF
 Pillow
 google-genai
 gunicorn
-flask_sqlalchemy
-email_validator
